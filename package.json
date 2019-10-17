@@ -8,19 +8,19 @@
     "ssrsample-build-lib": "fable-splitter Samples/SSRSample/src/Client/Client.fsproj -o Samples/SSRSample/src/Client/bin/lib --debug --commonjs"
   },
   "dependencies": {
-    "@babel/core": "^7.5.5",
-    "@babel/preset-env": "^7.5.5",
+    "@babel/core": "^7.6.4",
+    "@babel/preset-env": "^7.6.3",
     "babel-loader": "8.0.6",
-    "core-js": "^3.2.1",
-    "fable-compiler": "^2.3.20",
-    "fable-compiler-js": "^1.0.5",
+    "core-js": "^3.3.2",
+    "fable-compiler": "^2.4.7",
+    "fable-compiler-js": "^1.1.1",
     "fable-loader": "^2.1.8",
-    "fable-publish-utils": "^1.0.5",
-    "fable-splitter": "^2.1.10",
-    "react": "16.9.0",
-    "react-dom": "16.9.0",
-    "webpack": "^4.39.3",
-    "webpack-cli": "^3.3.7",
-    "webpack-dev-server": "^3.8.0"
+    "fable-publish-utils": "^1.1.1",
+    "fable-splitter": "^2.1.11",
+    "react": "16.10.2",
+    "react-dom": "16.10.2",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.8.2"
   }
 }
