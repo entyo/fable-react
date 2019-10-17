@@ -10,7 +10,6 @@
     -->
     <Compile Include="../../paket-files/elmish/react/src/common.fs" />
     <Compile Include="../../paket-files/elmish/react/src/react.fs" />
-    <Compile Include="Bench.fs" />
     <Compile Include="Client.fs" />
   </ItemGroup>
   <ItemGroup>

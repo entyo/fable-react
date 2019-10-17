@@ -18,76 +18,59 @@ open Thoth.Json.Giraffe
 open Shared.Types
 
 
-let clientPath = Path.Combine(__SOURCE_DIRECTORY__,"..","Client") |> Path.GetFullPath
+let clientPath = Path.Combine(__SOURCE_DIRECTORY__, "..", "Client") |> Path.GetFullPath
 let port = 8085us
 let assetsBaseUrl = "http://localhost:8080"
 
-let initState: Model = {
-  counter = Some 42
-  someString = "Some String"
-  someFloat = 11.11
-  someInt = 22
-}
-let getInitCounter () : Task<Model> = task { return initState }
+let initState: Model =
+    { counter = Some 42
+      someString = "Some String"
+      someFloat = 11.11
+      someInt = 22 }
+
+let getInitCounter(): Task<Model> = task { return initState }
 
 let htmlTemplate =
-  let clientHtml = Fable.ReactServer.renderToString(Shared.View.view initState ignore)
-  
-  let stateJson = // Serialize twice to output json as js string in html
-    Encode.Auto.toString(0, initState)
-    |> Encode.string |> Encode.toString 0
-  html []
-    [ head []
-        [ link
-            [ _rel "stylesheet"
-              _href "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css"
-            ]
-          link
-            [ _rel "stylesheet"
-              _href (assetsBaseUrl + "/index.css")
-            ]
-        ]
-      body []
-        [ div [_id "elmish-app"] [ rawText clientHtml ]
-          script []
-            [ rawText (sprintf """
+    let clientHtml = Fable.ReactServer.renderToString (Shared.View.view initState ignore)
+
+    let stateJson = // Serialize twice to output json as js string in html
+        Encode.Auto.toString (0, initState)
+        |> Encode.string
+        |> Encode.toString 0
+    html []
+        [ head []
+              [ link
+                  [ _rel "stylesheet"
+                    _href "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css" ]
+                link
+                    [ _rel "stylesheet"
+                      _href (assetsBaseUrl + "/index.css") ] ]
+          body []
+              [ div [ _id "elmish-app" ] [ rawText clientHtml ]
+                script [] [ rawText (sprintf """
             var __INIT_STATE__ = %s
             """ stateJson) ]
-          script [ _src (assetsBaseUrl + "/public/bundle.js") ] []
-        ]
-    ]
+                script [ _src (assetsBaseUrl + "/public/bundle.js") ] [] ] ]
 
 
-let webApp : HttpHandler =
-  choose [
+let webApp: HttpHandler =
+    choose
+        [ route "/" >=> htmlView htmlTemplate
+          route "/api/init" >=> fun next ctx ->
+              task {
+                  let! counter = getInitCounter()
+                  return! Successful.OK counter next ctx } ]
 
-    route "/" >=> htmlView htmlTemplate
-    route "/api/init" >=>
-      fun next ctx ->
-        task {
-          let! counter = getInitCounter()
-          return! Successful.OK counter next ctx
-        }
-  ]
-
-let configureApp  (app : IApplicationBuilder) =
-  app.UseStaticFiles()
-     .UseGiraffe webApp
+let configureApp (app: IApplicationBuilder) = app.UseStaticFiles().UseGiraffe webApp
 
 
-let configureServices (services : IServiceCollection) =
+let configureServices (services: IServiceCollection) =
     services.AddGiraffe() |> ignore
     services.AddSingleton<IJsonSerializer, ThothSerializer>() |> ignore
 
 [<EntryPoint>]
 let main argv =
-  WebHost
-    .CreateDefaultBuilder()
-    .UseWebRoot(clientPath)
-    .UseContentRoot(clientPath)
-    .Configure(Action<IApplicationBuilder> configureApp)
-    .ConfigureServices(configureServices)
-    .UseUrls("http://0.0.0.0:" + port.ToString() + "/")
-    .Build()
-    .Run()
-  0
+    WebHost.CreateDefaultBuilder().UseWebRoot(clientPath).UseContentRoot(clientPath)
+           .Configure(Action<IApplicationBuilder> configureApp).ConfigureServices(configureServices)
+           .UseUrls(port |> sprintf ("http://0.0.0.0:%d/")).Build().Run()
+    0
